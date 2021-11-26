@@ -5,3 +5,4 @@ These are the files that are in the `goyawifi` kernel but **NOT** in the Stock 3
 
 ## Finished Files
 `block/`
+`drivers/base/power/`
