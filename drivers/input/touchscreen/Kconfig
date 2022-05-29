@@ -950,6 +950,6 @@ config TOUCHSCREEN_CYPRESS_TMA46X
 
 	  To compile this driver as a module, choose M here: the
 	  module will be called tma46x.
-source "drivers/input/touchscreen/MMS144/Kconfig"
+# source "drivers/input/touchscreen/MMS144/Kconfig"
 endif
 

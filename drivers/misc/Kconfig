@@ -556,8 +556,8 @@ source "drivers/misc/ti-st/Kconfig"
 source "drivers/misc/lis3lv02d/Kconfig"
 source "drivers/misc/carma/Kconfig"
 source "drivers/misc/altera-stapl/Kconfig"
-source "drivers/misc/inv_mpu/Kconfig"
-source "drivers/misc/projector/Kconfig"
-source "drivers/misc/quicklogic/Kconfig"
+# source "drivers/misc/inv_mpu/Kconfig"
+# source "drivers/misc/projector/Kconfig"
+# source "drivers/misc/quicklogic/Kconfig"
 
 endmenu

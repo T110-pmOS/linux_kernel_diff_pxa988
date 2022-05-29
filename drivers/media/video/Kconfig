@@ -1,1381 +1,499 @@
-#
-# Generic video config states
-#
-
-config VIDEO_V4L2
-	tristate
-	depends on VIDEO_DEV && VIDEO_V4L2_COMMON
-	default VIDEO_DEV && VIDEO_V4L2_COMMON
-
-config VIDEOBUF_GEN
-	tristate
-
-config VIDEOBUF_DMA_SG
-	depends on HAS_DMA
-	select VIDEOBUF_GEN
-	tristate
-
-config VIDEOBUF_VMALLOC
-	select VIDEOBUF_GEN
-	tristate
-
-config VIDEOBUF_DMA_CONTIG
-	depends on HAS_DMA
-	select VIDEOBUF_GEN
-	tristate
-
-config VIDEOBUF_DVB
-	tristate
-	select VIDEOBUF_GEN
-
-config VIDEO_BTCX
-	depends on PCI
-	tristate
-
-config VIDEO_TVEEPROM
-	tristate
-	depends on I2C
-
-config VIDEO_TUNER
-	tristate
-	depends on MEDIA_TUNER
-
-config V4L2_MEM2MEM_DEV
-	tristate
-	depends on VIDEOBUF2_CORE
-
-config VIDEOBUF2_CORE
-	tristate
-
-config VIDEOBUF2_MEMOPS
-	tristate
-
-config VIDEOBUF2_DMA_CONTIG
-	select VIDEOBUF2_CORE
-	select VIDEOBUF2_MEMOPS
-	tristate
-
-config VIDEOBUF2_VMALLOC
-	select VIDEOBUF2_CORE
-	select VIDEOBUF2_MEMOPS
-	tristate
-
-
-config VIDEOBUF2_DMA_SG
-	#depends on HAS_DMA
-	select VIDEOBUF2_CORE
-	select VIDEOBUF2_MEMOPS
-	tristate
-#
-# Multimedia Video device configuration
-#
-
-menuconfig VIDEO_CAPTURE_DRIVERS
-	bool "Video capture adapters"
-	depends on VIDEO_V4L2
-	default y
-	---help---
-	  Say Y here to enable selecting the video adapters for
-	  webcams, analog TV, and hybrid analog/digital TV.
-	  Some of those devices also supports FM radio.
-
-if VIDEO_CAPTURE_DRIVERS && VIDEO_V4L2
-
-config VIDEO_ADV_DEBUG
-	bool "Enable advanced debug functionality"
-	default n
-	---help---
-	  Say Y here to enable advanced debugging functionality on some
-	  V4L devices.
-	  In doubt, say N.
-
-config VIDEO_FIXED_MINOR_RANGES
-	bool "Enable old-style fixed minor ranges for video devices"
-	default n
-	---help---
-	  Say Y here to enable the old-style fixed-range minor assignments.
-	  Only useful if you rely on the old behavior and use mknod instead of udev.
-
-	  When in doubt, say N.
-
-config VIDEO_HELPER_CHIPS_AUTO
-	bool "Autoselect pertinent encoders/decoders and other helper chips"
-	default y if !EXPERT
-	---help---
-	  Most video cards may require additional modules to encode or
-	  decode audio/video standards. This option will autoselect
-	  all pertinent modules to each selected video module.
-
-	  Unselect this only if you know exactly what you are doing, since
-	  it may break support on some boards.
-
-	  In doubt, say Y.
-
-config VIDEO_IR_I2C
-	tristate "I2C module for IR" if !VIDEO_HELPER_CHIPS_AUTO
-	depends on I2C && RC_CORE
-	default y
-	---help---
-	  Most boards have an IR chip directly connected via GPIO. However,
-	  some video boards have the IR connected via I2C bus.
-
-	  If your board doesn't have an I2C IR chip, you may disable this
-	  option.
-
-	  In doubt, say Y.
-
-#
-# Encoder / Decoder module configuration
-#
-
-menu "Encoders, decoders, sensors and other helper chips"
-	visible if !VIDEO_HELPER_CHIPS_AUTO
-
-comment "Audio decoders, processors and mixers"
-
-config VIDEO_TVAUDIO
-	tristate "Simple audio decoder chips"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for several audio decoder chips found on some bt8xx boards:
-	  Philips: tda9840, tda9873h, tda9874h/a, tda9850, tda985x, tea6300,
-		   tea6320, tea6420, tda8425, ta8874z.
-	  Microchip: pic16c54 based design on ProVideo PV951 board.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called tvaudio.
-
-config VIDEO_TDA7432
-	tristate "Philips TDA7432 audio processor"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for tda7432 audio decoder chip found on some bt8xx boards.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called tda7432.
-
-config VIDEO_TDA9840
-	tristate "Philips TDA9840 audio processor"
-	depends on I2C
-	---help---
-	  Support for tda9840 audio decoder chip found on some Zoran boards.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called tda9840.
-
-config VIDEO_TEA6415C
-	tristate "Philips TEA6415C audio processor"
-	depends on I2C
-	---help---
-	  Support for tea6415c audio decoder chip found on some bt8xx boards.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called tea6415c.
-
-config VIDEO_TEA6420
-	tristate "Philips TEA6420 audio processor"
-	depends on I2C
-	---help---
-	  Support for tea6420 audio decoder chip found on some bt8xx boards.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called tea6420.
-
-config VIDEO_MSP3400
-	tristate "Micronas MSP34xx audio decoders"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for the Micronas MSP34xx series of audio decoders.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called msp3400.
-
-config VIDEO_CS5345
-	tristate "Cirrus Logic CS5345 audio ADC"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for the Cirrus Logic CS5345 24-bit, 192 kHz
-	  stereo A/D converter.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called cs5345.
-
-config VIDEO_CS53L32A
-	tristate "Cirrus Logic CS53L32A audio ADC"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for the Cirrus Logic CS53L32A low voltage
-	  stereo A/D converter.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called cs53l32a.
-
-config VIDEO_TLV320AIC23B
-	tristate "Texas Instruments TLV320AIC23B audio codec"
-	depends on VIDEO_V4L2 && I2C && EXPERIMENTAL
-	---help---
-	  Support for the Texas Instruments TLV320AIC23B audio codec.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called tlv320aic23b.
-
-config VIDEO_WM8775
-	tristate "Wolfson Microelectronics WM8775 audio ADC with input mixer"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for the Wolfson Microelectronics WM8775 high
-	  performance stereo A/D Converter with a 4 channel input mixer.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called wm8775.
-
-config VIDEO_WM8739
-	tristate "Wolfson Microelectronics WM8739 stereo audio ADC"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for the Wolfson Microelectronics WM8739
-	  stereo A/D Converter.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called wm8739.
-
-config VIDEO_VP27SMPX
-	tristate "Panasonic VP27s internal MPX"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for the internal MPX of the Panasonic VP27s tuner.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called vp27smpx.
-
-comment "RDS decoders"
-
-config VIDEO_SAA6588
-	tristate "SAA6588 Radio Chip RDS decoder support"
-	depends on VIDEO_V4L2 && I2C
-
-	help
-	  Support for this Radio Data System (RDS) decoder. This allows
-	  seeing radio station identification transmitted using this
-	  standard.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called saa6588.
-
-comment "Video decoders"
-
-config VIDEO_ADV7180
-	tristate "Analog Devices ADV7180 decoder"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for the Analog Devices ADV7180 video decoder.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called adv7180.
-
-config VIDEO_ADV7183
-	tristate "Analog Devices ADV7183 decoder"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  V4l2 subdevice driver for the Analog Devices
-	  ADV7183 video decoder.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called adv7183.
-
-config VIDEO_BT819
-	tristate "BT819A VideoStream decoder"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for BT819A video decoder.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called bt819.
-
-config VIDEO_BT856
-	tristate "BT856 VideoStream decoder"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for BT856 video decoder.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called bt856.
-
-config VIDEO_BT866
-	tristate "BT866 VideoStream decoder"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for BT866 video decoder.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called bt866.
-
-config VIDEO_KS0127
-	tristate "KS0127 video decoder"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for KS0127 video decoder.
-
-	  This chip is used on AverMedia AVS6EYES Zoran-based MJPEG
-	  cards.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called ks0127.
-
-config VIDEO_SAA7110
-	tristate "Philips SAA7110 video decoder"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for the Philips SAA7110 video decoders.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called saa7110.
-
-config VIDEO_SAA711X
-	tristate "Philips SAA7111/3/4/5 video decoders"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for the Philips SAA7111/3/4/5 video decoders.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called saa7115.
-
-config VIDEO_SAA7191
-	tristate "Philips SAA7191 video decoder"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for the Philips SAA7191 video decoder.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called saa7191.
-
-config VIDEO_TVP514X
-	tristate "Texas Instruments TVP514x video decoder"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  This is a Video4Linux2 sensor-level driver for the TI TVP5146/47
-	  decoder. It is currently working with the TI OMAP3 camera
-	  controller.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called tvp514x.
-
-config VIDEO_TVP5150
-	tristate "Texas Instruments TVP5150 video decoder"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for the Texas Instruments TVP5150 video decoder.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called tvp5150.
-
-config VIDEO_TVP7002
-	tristate "Texas Instruments TVP7002 video decoder"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for the Texas Instruments TVP7002 video decoder.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called tvp7002.
-
-config VIDEO_VPX3220
-	tristate "vpx3220a, vpx3216b & vpx3214c video decoders"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for VPX322x video decoders.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called vpx3220.
-
-comment "Video and audio decoders"
-
-config VIDEO_SAA717X
-	tristate "Philips SAA7171/3/4 audio/video decoders"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for the Philips SAA7171/3/4 audio/video decoders.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called saa717x.
-
-source "drivers/media/video/cx25840/Kconfig"
-
-comment "MPEG video encoders"
-
-config VIDEO_CX2341X
-	tristate "Conexant CX2341x MPEG encoders"
-	depends on VIDEO_V4L2 && VIDEO_V4L2_COMMON
-	---help---
-	  Support for the Conexant CX23416 MPEG encoders
-	  and CX23415 MPEG encoder/decoders.
-
-	  This module currently supports the encoding functions only.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called cx2341x.
-
-comment "Video encoders"
-
-config VIDEO_SAA7127
-	tristate "Philips SAA7127/9 digital video encoders"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for the Philips SAA7127/9 digital video encoders.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called saa7127.
-
-config VIDEO_SAA7185
-	tristate "Philips SAA7185 video encoder"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for the Philips SAA7185 video encoder.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called saa7185.
-
-config VIDEO_ADV7170
-	tristate "Analog Devices ADV7170 video encoder"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for the Analog Devices ADV7170 video encoder driver
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called adv7170.
-
-config VIDEO_ADV7175
-	tristate "Analog Devices ADV7175 video encoder"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for the Analog Devices ADV7175 video encoder driver
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called adv7175.
-
-config VIDEO_ADV7343
-	tristate "ADV7343 video encoder"
-	depends on I2C
-	help
-	  Support for Analog Devices I2C bus based ADV7343 encoder.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called adv7343.
-
-config VIDEO_AK881X
-	tristate "AK8813/AK8814 video encoders"
-	depends on I2C
-	help
-	  Video output driver for AKM AK8813 and AK8814 TV encoders
-
-comment "Camera sensor devices"
-
-config VIDEO_APTINA_PLL
-	tristate
-
-config VIDEO_OV7670
-	tristate "OmniVision OV7670 sensor support"
-	depends on I2C && VIDEO_V4L2
-	---help---
-	  This is a Video4Linux2 sensor-level driver for the OmniVision
-	  OV7670 VGA camera.  It currently only works with the M88ALP01
-	  controller.
-
-config VIDEO_VS6624
-	tristate "ST VS6624 sensor support"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  This is a Video4Linux2 sensor-level driver for the ST VS6624
-	  camera.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called vs6624.
-
-config VIDEO_MT9M032
-	tristate "MT9M032 camera sensor support"
-	depends on I2C && VIDEO_V4L2 && VIDEO_V4L2_SUBDEV_API
-	select VIDEO_APTINA_PLL
-	---help---
-	  This driver supports MT9M032 camera sensors from Aptina, monochrome
-	  models only.
-
-config VIDEO_MT9P031
-	tristate "Aptina MT9P031 support"
-	depends on I2C && VIDEO_V4L2 && VIDEO_V4L2_SUBDEV_API
-	select VIDEO_APTINA_PLL
-	---help---
-	  This is a Video4Linux2 sensor-level driver for the Aptina
-	  (Micron) mt9p031 5 Mpixel camera.
-
-config VIDEO_MT9T001
-	tristate "Aptina MT9T001 support"
-	depends on I2C && VIDEO_V4L2 && VIDEO_V4L2_SUBDEV_API
-	---help---
-	  This is a Video4Linux2 sensor-level driver for the Aptina
-	  (Micron) mt0t001 3 Mpixel camera.
-
-config VIDEO_MT9V011
-	tristate "Micron mt9v011 sensor support"
-	depends on I2C && VIDEO_V4L2
-	---help---
-	  This is a Video4Linux2 sensor-level driver for the Micron
-	  mt0v011 1.3 Mpixel camera.  It currently only works with the
-	  em28xx driver.
-
-config VIDEO_MT9V032
-	tristate "Micron MT9V032 sensor support"
-	depends on I2C && VIDEO_V4L2 && VIDEO_V4L2_SUBDEV_API
-	---help---
-	  This is a Video4Linux2 sensor-level driver for the Micron
-	  MT9V032 752x480 CMOS sensor.
-
-config VIDEO_TCM825X
-	tristate "TCM825x camera sensor support"
-	depends on I2C && VIDEO_V4L2
-	---help---
-	  This is a driver for the Toshiba TCM825x VGA camera sensor.
-	  It is used for example in Nokia N800.
-
-config VIDEO_SR030PC30
-	tristate "Siliconfile SR030PC30 sensor support"
-	depends on I2C && VIDEO_V4L2
-	---help---
-	  This driver supports SR030PC30 VGA camera from Siliconfile
-
-config VIDEO_NOON010PC30
-	tristate "Siliconfile NOON010PC30 sensor support"
-	depends on I2C && VIDEO_V4L2 && EXPERIMENTAL && VIDEO_V4L2_SUBDEV_API
-	---help---
-	  This driver supports NOON010PC30 CIF camera from Siliconfile
-
-source "drivers/media/video/m5mols/Kconfig"
-
-config VIDEO_S5K6AA
-	tristate "Samsung S5K6AAFX sensor support"
-	depends on I2C && VIDEO_V4L2 && VIDEO_V4L2_SUBDEV_API
-	---help---
-	  This is a V4L2 sensor-level driver for Samsung S5K6AA(FX) 1.3M
-	  camera sensor with an embedded SoC image signal processor.
-
-comment "Flash devices"
-
-config VIDEO_ADP1653
-	tristate "ADP1653 flash support"
-	depends on I2C && VIDEO_V4L2 && MEDIA_CONTROLLER
-	---help---
-	  This is a driver for the ADP1653 flash controller. It is used for
-	  example in Nokia N900.
-
-config VIDEO_AS3645A
-	tristate "AS3645A flash driver support"
-	depends on I2C && VIDEO_V4L2 && MEDIA_CONTROLLER
-	---help---
-	  This is a driver for the AS3645A and LM3555 flash controllers. It has
-	  build in control for flash, torch and indicator LEDs.
-
-comment "Video improvement chips"
-
-config VIDEO_UPD64031A
-	tristate "NEC Electronics uPD64031A Ghost Reduction"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for the NEC Electronics uPD64031A Ghost Reduction
-	  video chip. It is most often found in NTSC TV cards made for
-	  Japan and is used to reduce the 'ghosting' effect that can
-	  be present in analog TV broadcasts.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called upd64031a.
-
-config VIDEO_UPD64083
-	tristate "NEC Electronics uPD64083 3-Dimensional Y/C separation"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	  Support for the NEC Electronics uPD64083 3-Dimensional Y/C
-	  separation video chip. It is used to improve the quality of
-	  the colors of a composite signal.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called upd64083.
-
-comment "Miscelaneous helper chips"
-
-config VIDEO_THS7303
-	tristate "THS7303 Video Amplifier"
-	depends on I2C
-	help
-	  Support for TI THS7303 video amplifier
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called ths7303.
-
-config VIDEO_M52790
-	tristate "Mitsubishi M52790 A/V switch"
-	depends on VIDEO_V4L2 && I2C
-	---help---
-	 Support for the Mitsubishi M52790 A/V switch.
-
-	 To compile this driver as a module, choose M here: the
-	 module will be called m52790.
-
-endmenu # encoder / decoder chips
-
-config VIDEO_VIVI
-	tristate "Virtual Video Driver"
-	depends on VIDEO_DEV && VIDEO_V4L2 && !SPARC32 && !SPARC64
-	depends on FRAMEBUFFER_CONSOLE || STI_CONSOLE
-	select FONT_8x16
-	select VIDEOBUF2_VMALLOC
-	default n
-	---help---
-	  Enables a virtual video driver. This device shows a color bar
-	  and a timestamp, as a real device would generate by using V4L2
-	  api.
-	  Say Y here if you want to test video apps or debug V4L devices.
-	  In doubt, say N.
-
-#
-# USB Multimedia device configuration
-#
-
-menuconfig V4L_USB_DRIVERS
-	bool "V4L USB devices"
-	depends on USB
-	default y
-
-if V4L_USB_DRIVERS
-
-source "drivers/media/video/uvc/Kconfig"
-
-source "drivers/media/video/gspca/Kconfig"
-
-source "drivers/media/video/pvrusb2/Kconfig"
-
-source "drivers/media/video/hdpvr/Kconfig"
-
-source "drivers/media/video/em28xx/Kconfig"
-
-source "drivers/media/video/tlg2300/Kconfig"
-
-source "drivers/media/video/cx231xx/Kconfig"
-
-source "drivers/media/video/tm6000/Kconfig"
-
-source "drivers/media/video/usbvision/Kconfig"
-
-source "drivers/media/video/et61x251/Kconfig"
-
-source "drivers/media/video/sn9c102/Kconfig"
-
-source "drivers/media/video/pwc/Kconfig"
-
-source "drivers/media/video/cpia2/Kconfig"
-
-config USB_ZR364XX
-	tristate "USB ZR364XX Camera support"
-	depends on VIDEO_V4L2
-	select VIDEOBUF_GEN
-	select VIDEOBUF_VMALLOC
-	---help---
-	  Say Y here if you want to connect this type of camera to your
-	  computer's USB port.
-	  See <file:Documentation/video4linux/zr364xx.txt> for more info
-	  and list of supported cameras.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called zr364xx.
-
-config USB_STKWEBCAM
-	tristate "USB Syntek DC1125 Camera support"
-	depends on VIDEO_V4L2 && EXPERIMENTAL
-	---help---
-	  Say Y here if you want to use this type of camera.
-	  Supported devices are typically found in some Asus laptops,
-	  with USB id 174f:a311 and 05e1:0501. Other Syntek cameras
-	  may be supported by the stk11xx driver, from which this is
-	  derived, see <http://sourceforge.net/projects/syntekdriver/>
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called stkwebcam.
-
-config USB_S2255
-	tristate "USB Sensoray 2255 video capture device"
-	depends on VIDEO_V4L2
-	select VIDEOBUF_VMALLOC
-	default n
-	help
-	  Say Y here if you want support for the Sensoray 2255 USB device.
-	  This driver can be compiled as a module, called s2255drv.
-
-endif # V4L_USB_DRIVERS
-
-#
-# PCI drivers configuration
-#
-
-menuconfig V4L_PCI_DRIVERS
-	bool "V4L PCI(e) devices"
-	depends on PCI
-	default y
-	---help---
-	  Say Y here to enable support for these PCI(e) drivers.
-
-if V4L_PCI_DRIVERS
-
-source "drivers/media/video/au0828/Kconfig"
-
-source "drivers/media/video/bt8xx/Kconfig"
-
-source "drivers/media/video/cx18/Kconfig"
-
-source "drivers/media/video/cx23885/Kconfig"
-
-source "drivers/media/video/cx25821/Kconfig"
-
-source "drivers/media/video/cx88/Kconfig"
-
-config VIDEO_HEXIUM_GEMINI
-	tristate "Hexium Gemini frame grabber"
-	depends on PCI && VIDEO_V4L2 && I2C
-	select VIDEO_SAA7146_VV
-	---help---
-	  This is a video4linux driver for the Hexium Gemini frame
-	  grabber card by Hexium. Please note that the Gemini Dual
-	  card is *not* fully supported.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called hexium_gemini.
-
-config VIDEO_HEXIUM_ORION
-	tristate "Hexium HV-PCI6 and Orion frame grabber"
-	depends on PCI && VIDEO_V4L2 && I2C
-	select VIDEO_SAA7146_VV
-	---help---
-	  This is a video4linux driver for the Hexium HV-PCI6 and
-	  Orion frame grabber cards by Hexium.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called hexium_orion.
-
-source "drivers/media/video/ivtv/Kconfig"
-
-config VIDEO_MEYE
-	tristate "Sony Vaio Picturebook Motion Eye Video For Linux"
-	depends on PCI && SONY_LAPTOP && VIDEO_V4L2
-	---help---
-	  This is the video4linux driver for the Motion Eye camera found
-	  in the Vaio Picturebook laptops. Please read the material in
-	  <file:Documentation/video4linux/meye.txt> for more information.
-
-	  If you say Y or M here, you need to say Y or M to "Sony Laptop
-	  Extras" in the misc device section.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called meye.
-
-config VIDEO_MXB
-	tristate "Siemens-Nixdorf 'Multimedia eXtension Board'"
-	depends on PCI && VIDEO_V4L2 && I2C
-	select VIDEO_SAA7146_VV
-	select VIDEO_TUNER
-	select VIDEO_SAA711X if VIDEO_HELPER_CHIPS_AUTO
-	select VIDEO_TDA9840 if VIDEO_HELPER_CHIPS_AUTO
-	select VIDEO_TEA6415C if VIDEO_HELPER_CHIPS_AUTO
-	select VIDEO_TEA6420 if VIDEO_HELPER_CHIPS_AUTO
-	---help---
-	  This is a video4linux driver for the 'Multimedia eXtension Board'
-	  TV card by Siemens-Nixdorf.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called mxb.
-
-source "drivers/media/video/saa7134/Kconfig"
-
-source "drivers/media/video/saa7164/Kconfig"
-
-source "drivers/media/video/zoran/Kconfig"
-
-endif # V4L_PCI_DRIVERS
-
-#
-# ISA & parallel port drivers configuration
-#
-
-menuconfig V4L_ISA_PARPORT_DRIVERS
-	bool "V4L ISA and parallel port devices"
-	depends on ISA || PARPORT
-	default n
-	---help---
-	  Say Y here to enable support for these ISA and parallel port drivers.
-
-if V4L_ISA_PARPORT_DRIVERS
-
-config VIDEO_BWQCAM
-	tristate "Quickcam BW Video For Linux"
-	depends on PARPORT && VIDEO_V4L2
-	help
-	  Say Y have if you the black and white version of the QuickCam
-	  camera. See the next option for the color version.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called bw-qcam.
-
-config VIDEO_CQCAM
-	tristate "QuickCam Colour Video For Linux"
-	depends on PARPORT && VIDEO_V4L2
-	help
-	  This is the video4linux driver for the colour version of the
-	  Connectix QuickCam.  If you have one of these cameras, say Y here,
-	  otherwise say N.  This driver does not work with the original
-	  monochrome QuickCam, QuickCam VC or QuickClip.  It is also available
-	  as a module (c-qcam).
-	  Read <file:Documentation/video4linux/CQcam.txt> for more information.
-
-config VIDEO_PMS
-	tristate "Mediavision Pro Movie Studio Video For Linux"
-	depends on ISA && VIDEO_V4L2
-	help
-	  Say Y if you have the ISA Mediavision Pro Movie Studio
-	  capture card.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called pms.
-
-config VIDEO_W9966
-	tristate "W9966CF Webcam (FlyCam Supra and others) Video For Linux"
-	depends on PARPORT_1284 && PARPORT && VIDEO_V4L2
-	help
-	  Video4linux driver for Winbond's w9966 based Webcams.
-	  Currently tested with the LifeView FlyCam Supra.
-	  If you have one of these cameras, say Y here
-	  otherwise say N.
-	  This driver is also available as a module (w9966).
-
-	  Check out <file:Documentation/video4linux/w9966.txt> for more
-	  information.
-
-endif # V4L_ISA_PARPORT_DRIVERS
-
-menuconfig V4L_PLATFORM_DRIVERS
-	bool "V4L platform devices"
-	default n
-	---help---
-	  Say Y here to enable support for platform-specific V4L drivers.
-
-if V4L_PLATFORM_DRIVERS
-
-source "drivers/media/video/marvell-ccic/Kconfig"
-
-config VIDEO_VIA_CAMERA
-	tristate "VIAFB camera controller support"
-	depends on FB_VIA
-	select VIDEOBUF_DMA_SG
-	select VIDEO_OV7670
-	help
-	   Driver support for the integrated camera controller in VIA
-	   Chrome9 chipsets.  Currently only tested on OLPC xo-1.5 systems
-	   with ov7670 sensors.
-
-#
-# Platform multimedia device configuration
-#
-
-source "drivers/media/video/davinci/Kconfig"
-
-source "drivers/media/video/omap/Kconfig"
-
-source "drivers/media/video/blackfin/Kconfig"
-
-config VIDEO_SH_VOU
-	tristate "SuperH VOU video output driver"
-	depends on VIDEO_DEV && ARCH_SHMOBILE
-	select VIDEOBUF_DMA_CONTIG
-	help
-	  Support for the Video Output Unit (VOU) on SuperH SoCs.
-
-config VIDEO_VIU
-	tristate "Freescale VIU Video Driver"
-	depends on VIDEO_V4L2 && PPC_MPC512x
-	select VIDEOBUF_DMA_CONTIG
-	default y
-	---help---
-	  Support for Freescale VIU video driver. This device captures
-	  video data, or overlays video on DIU frame buffer.
-
-	  Say Y here if you want to enable VIU device on MPC5121e Rev2+.
-	  In doubt, say N.
-
-config VIDEO_TIMBERDALE
-	tristate "Support for timberdale Video In/LogiWIN"
-	depends on VIDEO_V4L2 && I2C && DMADEVICES
-	select DMA_ENGINE
-	select TIMB_DMA
-	select VIDEO_ADV7180
-	select VIDEOBUF_DMA_CONTIG
-	---help---
-	  Add support for the Video In peripherial of the timberdale FPGA.
-
-config VIDEO_VINO
-	tristate "SGI Vino Video For Linux"
-	depends on I2C && SGI_IP22 && VIDEO_V4L2
-	select VIDEO_SAA7191 if VIDEO_HELPER_CHIPS_AUTO
-	help
-	  Say Y here to build in support for the Vino video input system found
-	  on SGI Indy machines.
-
-config VIDEO_M32R_AR
-	tristate "AR devices"
-	depends on M32R && VIDEO_V4L2
-	---help---
-	  This is a video4linux driver for the Renesas AR (Artificial Retina)
-	  camera module.
-
-config VIDEO_M32R_AR_M64278
-	tristate "AR device with color module M64278(VGA)"
-	depends on PLAT_M32700UT
-	select VIDEO_M32R_AR
-	---help---
-	  This is a video4linux driver for the Renesas AR (Artificial
-	  Retina) with M64278E-800 camera module.
-	  This module supports VGA(640x480 pixels) resolutions.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called arv.
-
-config VIDEO_OMAP3
-	tristate "OMAP 3 Camera support (EXPERIMENTAL)"
-	depends on OMAP_IOVMM && VIDEO_V4L2 && I2C && VIDEO_V4L2_SUBDEV_API && ARCH_OMAP3 && EXPERIMENTAL
-	---help---
-	  Driver for an OMAP 3 camera controller.
-
-config VIDEO_OMAP3_DEBUG
-	bool "OMAP 3 Camera debug messages"
-	depends on VIDEO_OMAP3
-	---help---
-	  Enable debug messages on OMAP 3 camera controller driver.
-
-source "drivers/media/video/ecs/Kconfig"
-
-config VIDEO_MVISP
-	tristate "Marvell ISP support (EXPERIMENTAL)"
-	select VIDEOBUF2_DMA_CONTIG
-	depends on VIDEO_V4L2 && I2C && VIDEO_V4L2_SUBDEV_API && MEDIA_CONTROLLER && ARCH_MMP && EXPERIMENTAL
-	select MAP_CAMERA
-	---help---
-	  Driver for an Marvell ISP 3 camera controller.
-	  Including the ISP IPC,ISP DMA and CCIC control.
-
-config MAP_CAMERA
-	bool "MAP camera support"
-	depends on VIDEO_V4L2 && HAS_DMA
-	default n
-	---help---
-	  MAP camera is a package of helper function to enhance MediaController.
-	  It implement common used v4l2 APIs, and provide a infrastructure, on
-	  which camera IP core drivers can be addressed. The IP core shoulde be
-	  broken down into subdevs(mc_agent), and each fulfill all the subdev
-	  ops.
-
-config SOC_CAMERA
-	tristate "SoC camera support"
-	depends on VIDEO_V4L2 && HAS_DMA && I2C
-	select VIDEOBUF_GEN
-	select VIDEOBUF2_CORE
-	help
-	  SoC Camera is a common API to several cameras, not connecting
-	  over a bus like PCI or USB. For example some i2c camera connected
-	  directly to the data bus of an SoC.
-
-config VIDEO_MVISP_OV882X
-	tristate "ov882x base support"
-	depends on VIDEO_MVISP && I2C
-	---help---
-	 Support for the OmniVision OV882x camera base.
-
-config VIDEO_MVISP_SENSOR
-	tristate "sensor base support"
-	depends on VIDEO_MVISP && I2C
-	help
-	 Support for the Marvell ISP camera base.
-
-config VIDEO_VCM_DW9714L
-	tristate "ov5647 vcm support"
-	depends on VIDEO_MVISP && I2C && VIDEO_MVISP_SENSOR
-	---help---
-	 Support for the OmniVision ov5647 vcm base.
-
-config VIDEO_VCM_AD5823
-	tristate "ov12830 vcm support"
-	depends on VIDEO_MVISP && I2C && VIDEO_MVISP_SENSOR
-	---help---
-	 Support for the OmniVision ov12830 vcm base.
-
-config VIDEO_VCM_AK7343
-	tristate "Lsi vcm support"
-	depends on VIDEO_MVISP && I2C && VIDEO_MVISP_SENSOR
-	---help---
-	 Support for the Samsung LSI vcm base.
-
-
-config SOC_CAMERA_IMX074
-	tristate "imx074 support"
-	depends on SOC_CAMERA && I2C
-	help
-	  This driver supports IMX074 cameras from Sony
-
-config SOC_CAMERA_MT9M001
-	tristate "mt9m001 support"
-	depends on SOC_CAMERA && I2C
-	select GPIO_PCA953X if MT9M001_PCA9536_SWITCH
-	help
-	  This driver supports MT9M001 cameras from Micron, monochrome
-	  and colour models.
-
-config SOC_CAMERA_MT9M111
-	tristate "mt9m111, mt9m112 and mt9m131 support"
-	depends on SOC_CAMERA && I2C
-	help
-	  This driver supports MT9M111, MT9M112 and MT9M131 cameras from
-	  Micron/Aptina
-
-config SOC_CAMERA_MT9T031
-	tristate "mt9t031 support"
-	depends on SOC_CAMERA && I2C
-	help
-	  This driver supports MT9T031 cameras from Micron.
-
-config SOC_CAMERA_MT9T112
-	tristate "mt9t112 support"
-	depends on SOC_CAMERA && I2C
-	help
-	  This driver supports MT9T112 cameras from Aptina.
-
-config SOC_CAMERA_MT9V022
-	tristate "mt9v022 support"
-	depends on SOC_CAMERA && I2C
-	select GPIO_PCA953X if MT9V022_PCA9536_SWITCH
-	help
-	  This driver supports MT9V022 cameras from Micron
-
-config SOC_CAMERA_RJ54N1
-	tristate "rj54n1cb0c support"
-	depends on SOC_CAMERA && I2C
-	help
-	  This is a rj54n1cb0c video driver
-
-config SOC_CAMERA_TW9910
-	tristate "tw9910 support"
-	depends on SOC_CAMERA && I2C
-	help
-	  This is a tw9910 video driver
-
-config SOC_CAMERA_PLATFORM
-	tristate "platform camera support"
-	depends on SOC_CAMERA
-	help
-	  This is a generic SoC camera platform driver, useful for testing
-
-config SOC_CAMERA_OV2640
-	tristate "ov2640 camera support"
-	depends on SOC_CAMERA && I2C
-	help
-	  This is a ov2640 camera driver
-
-config SOC_CAMERA_OV5642
-	tristate "ov5642 camera support"
-	depends on SOC_CAMERA && I2C
-	help
-	  This is a V4L2 camera driver for the OmniVision OV5642 sensor
-
-config SOC_CAMERA_OV5640
-	tristate "ov5640 camera support"
-	depends on SOC_CAMERA && I2C
-	help
-	  This is a V4L2 camera driver for the OmniVision OV5640 sensor
-
-config SOC_CAMERA_OV2659
-	tristate "ov2659 support"
-	depends on SOC_CAMERA && I2C
-	default n
-	help
-	  This driver supports OmniVision OV2659 2M camera, uses subdev arch.
-
-config SOC_CAMERA_OV6650
-	tristate "ov6650 sensor support"
-	depends on SOC_CAMERA && I2C
-	---help---
-	  This is a V4L2 SoC camera driver for the OmniVision OV6650 sensor
-
-config SOC_CAMERA_OV772X
-	tristate "ov772x camera support"
-	depends on SOC_CAMERA && I2C
-	help
-	  This is a ov772x camera driver
-
-config SOC_CAMERA_OV9640
-	tristate "ov9640 camera support"
-	depends on SOC_CAMERA && I2C
-	help
-	  This is a ov9640 camera driver
-
-config SOC_CAMERA_OV9740
-	tristate "ov9740 camera support"
-	depends on SOC_CAMERA && I2C
-	help
-	  This is a ov9740 camera driver
-
-config SOC_CAMERA_S5K4ECGX
-	tristate "SYS.LSI sensor support"
-	depends on SOC_CAMERA && I2C
-	---help---
-	  This is a Video4Linux2 sensor-level driver for the SYS.LSI
-	  S5K4ECGX 5M camera.
-
-config VIDEO_SR030PC30
-	tristate "SYS.LSI SR030PC30 subsensor support"
-	depends on I2C && SOC_CAMERA
-	---help---
-	  This driver supports SR030PC30 VGA camera from Siliconfile
-
-config SOC_CAMERA_SR352
-	tristate "silliconfile SR352 sub sensor support"
-	depends on SOC_CAMERA && I2C
-	---help---
-	  This is a Video4Linux2 sensor-level driver for the silliconfile
-	  SR352 3.0M camera.
-
-config SOC_CAMERA_SUBSENSOR
-	tristate "Marvell AE subsensor support demo"
-	depends on SOC_CAMERA && I2C
-	---help---
-	  This is a Video4Linux2 sensor-level driver for the
-	  Marvell AE subsensor support demo.
-	  
-config SOC_CAMERA_SR030PC50
-	tristate "siliconfile SR030PC50 VGA sensor support"
-	depends on SOC_CAMERA && I2C
-	---help---
-	  This is a Video4Linux2 sensor-level driver for the siliconfile
-	  SR030PC50 VGA camera.
-
-config SOC_CAMERA_SR200PC20M
-	tristate "silliconfile SR200PC20M main sensor support"
-	depends on SOC_CAMERA && I2C
-	---help---
-	  This is a Video4Linux2 sensor-level driver for the silliconfile
-	  SR200PC20M 2M camera.
-
-config SOC_CAMERA_SR130PC10
-	tristate "silliconfile SR130PC10 sub sensor support"
-	depends on SOC_CAMERA && I2C
-	---help---
-	  This is a Video4Linux2 sensor-level driver for the silliconfile
-	  SR130PC10 1.2M camera.
-	  
-config CAMERA_J_CAMERA
-	tristate "J Camera driver"
-	depends on SOC_CAMERA && I2C
-	---help---
-	  This is a v4l2 driver for the J camera 
-	  
-config MX1_VIDEO
+config LEDS_GPIO_REGISTER
 	bool
+	help
+	  This option provides the function gpio_led_register_device.
+	  As this function is used by arch code it must not be compiled as a
+	  module.
 
-config VIDEO_MX1
-	tristate "i.MX1/i.MXL CMOS Sensor Interface driver"
-	depends on VIDEO_DEV && ARCH_MX1 && SOC_CAMERA
-	select FIQ
-	select VIDEOBUF_DMA_CONTIG
-	select MX1_VIDEO
-	---help---
-	  This is a v4l2 driver for the i.MX1/i.MXL CMOS Sensor Interface
+menuconfig NEW_LEDS
+	bool "LED Support"
+	help
+	  Say Y to enable Linux LED support.  This allows control of supported
+	  LEDs from both userspace and optionally, by kernel events (triggers).
 
-config MX3_VIDEO
-	bool
+	  This is not related to standard keyboard LEDs which are controlled
+	  via the input system.
 
-config VIDEO_MX3
-	tristate "i.MX3x Camera Sensor Interface driver"
-	depends on VIDEO_DEV && MX3_IPU && SOC_CAMERA
-	select VIDEOBUF2_DMA_CONTIG
-	select MX3_VIDEO
-	---help---
-	  This is a v4l2 driver for the i.MX3x Camera Sensor Interface
+if NEW_LEDS
 
-config VIDEO_PXA27x
-	tristate "PXA27x Quick Capture Interface driver"
-	depends on VIDEO_DEV && PXA27x && SOC_CAMERA
-	select VIDEOBUF_DMA_SG
-	---help---
-	  This is a v4l2 driver for the PXA27x Quick Capture Interface
+config LEDS_CLASS
+	tristate "LED Class Support"
+	help
+	  This option enables the led sysfs class in /sys/class/leds.  You'll
+	  need this to do anything useful with LEDs.  If unsure, say N.
 
-config VIDEO_SH_MOBILE_CSI2
-	tristate "SuperH Mobile MIPI CSI-2 Interface driver"
-	depends on VIDEO_DEV && SOC_CAMERA && HAVE_CLK
-	---help---
-	  This is a v4l2 driver for the SuperH MIPI CSI-2 Interface
+comment "LED drivers"
 
-config VIDEO_MMP
-	tristate "Marvell MMP CCIC driver based on SOC_CAMERA"
-	depends on VIDEO_DEV && SOC_CAMERA
-	select VIDEOBUF2_DMA_CONTIG
-	---help---
-	  This is a v4l2 driver for the Marvell PXA910/PXA688/PXA2128 CCIC
+config LEDS_88PM860X
+	tristate "LED Support for Marvell 88PM860x PMIC"
+	depends on LEDS_CLASS
+	depends on MFD_88PM860X
+	help
+	  This option enables support for on-chip LED drivers found on Marvell
+	  Semiconductor 88PM8606 PMIC.
+
+config LEDS_ATMEL_PWM
+	tristate "LED Support using Atmel PWM outputs"
+	depends on LEDS_CLASS
+	depends on ATMEL_PWM
+	help
+	  This option enables support for LEDs driven using outputs
+	  of the dedicated PWM controller found on newer Atmel SOCs.
+
+config LEDS_LM3530
+	tristate "LCD Backlight driver for LM3530"
+	depends on LEDS_CLASS
+	depends on I2C
+	help
+	  This option enables support for the LCD backlight using
+	  LM3530 ambient light sensor chip. This ALS chip can be
+	  controlled manually or using PWM input or using ambient
+	  light automatically.
+
+config LEDS_LOCOMO
+	tristate "LED Support for Locomo device"
+	depends on LEDS_CLASS
+	depends on SHARP_LOCOMO
+	help
+	  This option enables support for the LEDs on Sharp Locomo.
+	  Zaurus models SL-5500 and SL-5600.
+
+config LEDS_MIKROTIK_RB532
+	tristate "LED Support for Mikrotik Routerboard 532"
+	depends on LEDS_CLASS
+	depends on MIKROTIK_RB532
+	help
+	  This option enables support for the so called "User LED" of
+	  Mikrotik's Routerboard 532.
+
+config LEDS_S3C24XX
+	tristate "LED Support for Samsung S3C24XX GPIO LEDs"
+	depends on LEDS_CLASS
+	depends on ARCH_S3C24XX
+	help
+	  This option enables support for LEDs connected to GPIO lines
+	  on Samsung S3C24XX series CPUs, such as the S3C2410 and S3C2440.
+
+config LEDS_NET48XX
+	tristate "LED Support for Soekris net48xx series Error LED"
+	depends on LEDS_CLASS
+	depends on SCx200_GPIO
+	help
+	  This option enables support for the Soekris net4801 and net4826 error
+	  LED.
+
+config LEDS_FSG
+	tristate "LED Support for the Freecom FSG-3"
+	depends on LEDS_CLASS
+	depends on MACH_FSG
+	help
+	  This option enables support for the LEDs on the Freecom FSG-3.
+
+config LEDS_WRAP
+	tristate "LED Support for the WRAP series LEDs"
+	depends on LEDS_CLASS
+	depends on SCx200_GPIO
+	help
+	  This option enables support for the PCEngines WRAP programmable LEDs.
+
+config LEDS_COBALT_QUBE
+	tristate "LED Support for the Cobalt Qube series front LED"
+	depends on LEDS_CLASS
+	depends on MIPS_COBALT
+	help
+	  This option enables support for the front LED on Cobalt Qube series
+
+config LEDS_COBALT_RAQ
+	bool "LED Support for the Cobalt Raq series"
+	depends on LEDS_CLASS=y && MIPS_COBALT
+	select LEDS_TRIGGERS
+	help
+	  This option enables support for the Cobalt Raq series LEDs.
+
+config LEDS_SUNFIRE
+	tristate "LED support for SunFire servers."
+	depends on LEDS_CLASS
+	depends on SPARC64
+	select LEDS_TRIGGERS
+	help
+	  This option enables support for the Left, Middle, and Right
+	  LEDs on the I/O and CPU boards of SunFire UltraSPARC servers.
+
+config LEDS_HP6XX
+	tristate "LED Support for the HP Jornada 6xx"
+	depends on LEDS_CLASS
+	depends on SH_HP6XX
+	help
+	  This option enables LED support for the handheld
+	  HP Jornada 620/660/680/690.
+
+config LEDS_PCA9532
+	tristate "LED driver for PCA9532 dimmer"
+	depends on LEDS_CLASS
+	depends on I2C && INPUT && EXPERIMENTAL
+	help
+	  This option enables support for NXP pca9532
+	  LED controller. It is generally only useful
+	  as a platform driver
+
+config LEDS_PCA9532_GPIO
+	bool "Enable GPIO support for PCA9532"
+	depends on LEDS_PCA9532
+	depends on GPIOLIB
+	help
+	  Allow unused pins on PCA9532 to be used as gpio.
+
+	  To use a pin as gpio pca9532_type in pca9532_platform data needs to
+	  set to PCA9532_TYPE_GPIO.
+
+config LEDS_GPIO
+	tristate "LED Support for GPIO connected LEDs"
+	depends on LEDS_CLASS
+	depends on GENERIC_GPIO
+	help
+	  This option enables support for the LEDs connected to GPIO
+	  outputs. To be useful the particular board must have LEDs
+	  and they must be connected to the GPIO lines.  The LEDs must be
+	  defined as platform devices and/or OpenFirmware platform devices.
+	  The code to use these bindings can be selected below.
+
+config LEDS_LP3944
+	tristate "LED Support for N.S. LP3944 (Fun Light) I2C chip"
+	depends on LEDS_CLASS
+	depends on I2C
+	help
+	  This option enables support for LEDs connected to the National
+	  Semiconductor LP3944 Lighting Management Unit (LMU) also known as
+	  Fun Light Chip.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called leds-lp3944.
+
+config LEDS_LP5521
+	tristate "LED Support for N.S. LP5521 LED driver chip"
+	depends on LEDS_CLASS && I2C
+	help
+	  If you say yes here you get support for the National Semiconductor
+	  LP5521 LED driver. It is 3 channel chip with programmable engines.
+	  Driver provides direct control via LED class and interface for
+	  programming the engines.
+
+config LEDS_LP5523
+	tristate "LED Support for N.S. LP5523 LED driver chip"
+	depends on LEDS_CLASS && I2C
+	help
+	  If you say yes here you get support for the National Semiconductor
+	  LP5523 LED driver. It is 9 channel chip with programmable engines.
+	  Driver provides direct control via LED class and interface for
+	  programming the engines.
+
+config LEDS_CLEVO_MAIL
+	tristate "Mail LED on Clevo notebook"
+	depends on LEDS_CLASS
+	depends on X86 && SERIO_I8042 && DMI
+	help
+	  This driver makes the mail LED accessible from userspace
+	  programs through the leds subsystem. This LED have three
+	  known mode: off, blink at 0.5Hz and blink at 1Hz.
+
+	  The driver supports two kinds of interface: using ledtrig-timer
+	  or through /sys/class/leds/clevo::mail/brightness. As this LED
+	  cannot change it's brightness it blinks instead. The brightness
+	  value 0 means off, 1..127 means blink at 0.5Hz and 128..255 means
+	  blink at 1Hz.
+
+	  This module can drive the mail LED for the following notebooks:
+
+	  	Clevo D400P
+	  	Clevo D410J
+	  	Clevo D410V
+	  	Clevo D400V/D470V (not tested, but might work)
+	  	Clevo M540N
+	  	Clevo M5x0N (not tested, but might work)
+	  	Positivo Mobile (Clevo M5x0V)
+
+	  If your model is not listed here you can try the "nodetect"
+	  module parameter.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called leds-clevo-mail.
+
+config LEDS_PCA955X
+	tristate "LED Support for PCA955x I2C chips"
+	depends on LEDS_CLASS
+	depends on I2C
+	help
+	  This option enables support for LEDs connected to PCA955x
+	  LED driver chips accessed via the I2C bus.  Supported
+	  devices include PCA9550, PCA9551, PCA9552, and PCA9553.
+
+config LEDS_PCA9633
+	tristate "LED support for PCA9633 I2C chip"
+	depends on LEDS_CLASS
+	depends on I2C
+	help
+	  This option enables support for LEDs connected to the PCA9633
+	  LED driver chip accessed via the I2C bus.
+
+config LEDS_WM831X_STATUS
+	tristate "LED support for status LEDs on WM831x PMICs"
+	depends on LEDS_CLASS
+	depends on MFD_WM831X
+	help
+	  This option enables support for the status LEDs of the WM831x
+          series of PMICs.
+
+config LEDS_WM8350
+	tristate "LED Support for WM8350 AudioPlus PMIC"
+	depends on LEDS_CLASS
+	depends on MFD_WM8350
+	help
+	  This option enables support for LEDs driven by the Wolfson
+	  Microelectronics WM8350 AudioPlus PMIC.
+
+config LEDS_DA903X
+	tristate "LED Support for DA9030/DA9034 PMIC"
+	depends on LEDS_CLASS
+	depends on PMIC_DA903X
+	help
+	  This option enables support for on-chip LED drivers found
+	  on Dialog Semiconductor DA9030/DA9034 PMICs.
+
+config LEDS_DAC124S085
+	tristate "LED Support for DAC124S085 SPI DAC"
+	depends on LEDS_CLASS
+	depends on SPI
+	help
+	  This option enables support for DAC124S085 SPI DAC from NatSemi,
+	  which can be used to control up to four LEDs.
+
+config LEDS_PWM
+	tristate "PWM driven LED Support"
+	depends on LEDS_CLASS
+	depends on HAVE_PWM
+	help
+	  This option enables support for pwm driven LEDs
+
+config LEDS_REGULATOR
+	tristate "REGULATOR driven LED support"
+	depends on LEDS_CLASS
+	depends on REGULATOR
+	help
+	  This option enables support for regulator driven LEDs.
+
+config LEDS_BD2802
+	tristate "LED driver for BD2802 RGB LED"
+	depends on LEDS_CLASS
+	depends on I2C
+	help
+	  This option enables support for BD2802GU RGB LED driver chips
+	  accessed via the I2C bus.
+
+config LEDS_INTEL_SS4200
+	tristate "LED driver for Intel NAS SS4200 series"
+	depends on LEDS_CLASS
+	depends on PCI && DMI
+	help
+	  This option enables support for the Intel SS4200 series of
+	  Network Attached Storage servers.  You may control the hard
+	  drive or power LEDs on the front panel.  Using this driver
+	  can stop the front LED from blinking after startup.
+
+config LEDS_LT3593
+	tristate "LED driver for LT3593 controllers"
+	depends on LEDS_CLASS
+	depends on GENERIC_GPIO
+	help
+	  This option enables support for LEDs driven by a Linear Technology
+	  LT3593 controller. This controller uses a special one-wire pulse
+	  coding protocol to set the brightness.
+
+config LEDS_ADP5520
+	tristate "LED Support for ADP5520/ADP5501 PMIC"
+	depends on LEDS_CLASS
+	depends on PMIC_ADP5520
+	help
+	  This option enables support for on-chip LED drivers found
+	  on Analog Devices ADP5520/ADP5501 PMICs.
+
 	  To compile this driver as a module, choose M here: the module will
-	  be called mmp_camera.
+	  be called leds-adp5520.
 
-config VIDEO_MRVL_CAM_DEBUG
-	tristate "Marvell Camera Driver Debug Interface"
-	default n
-	---help---
-	  This is a debug interface for Marvell camera drivers.
-
-config VIDEO_SH_MOBILE_CEU
-	tristate "SuperH Mobile CEU Interface driver"
-	depends on VIDEO_DEV && SOC_CAMERA && HAS_DMA && HAVE_CLK
-	select VIDEOBUF2_DMA_CONTIG
-	---help---
-	  This is a v4l2 driver for the SuperH Mobile CEU Interface
-
-config VIDEO_OMAP1
-	tristate "OMAP1 Camera Interface driver"
-	depends on VIDEO_DEV && ARCH_OMAP1 && SOC_CAMERA
-	select VIDEOBUF_DMA_CONTIG
-	select VIDEOBUF_DMA_SG
-	---help---
-	  This is a v4l2 driver for the TI OMAP1 camera interface
-
-config VIDEO_OMAP2
-	tristate "OMAP2 Camera Capture Interface driver"
-	depends on VIDEO_DEV && ARCH_OMAP2
-	select VIDEOBUF_DMA_SG
-	---help---
-	  This is a v4l2 driver for the TI OMAP2 camera capture interface
-
-config VIDEO_MX2_HOSTSUPPORT
-	bool
-
-config VIDEO_MX2
-	tristate "i.MX27/i.MX25 Camera Sensor Interface driver"
-	depends on VIDEO_DEV && SOC_CAMERA && (MACH_MX27 || ARCH_MX25)
-	select VIDEOBUF2_DMA_CONTIG
-	select VIDEO_MX2_HOSTSUPPORT
-	---help---
-	  This is a v4l2 driver for the i.MX27 and the i.MX25 Camera Sensor
-	  Interface
-
-config  VIDEO_SAMSUNG_S5P_FIMC
-	tristate "Samsung S5P and EXYNOS4 camera interface driver (EXPERIMENTAL)"
-	depends on VIDEO_V4L2 && I2C && PLAT_S5P && PM_RUNTIME && \
-		VIDEO_V4L2_SUBDEV_API && EXPERIMENTAL
-	select VIDEOBUF2_DMA_CONTIG
-	select V4L2_MEM2MEM_DEV
-	---help---
-	  This is a v4l2 driver for Samsung S5P and EXYNOS4 camera
-	  host interface and video postprocessor.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called s5p-fimc.
-
-config VIDEO_ATMEL_ISI
-	tristate "ATMEL Image Sensor Interface (ISI) support"
-	depends on VIDEO_DEV && SOC_CAMERA && ARCH_AT91
-	select VIDEOBUF2_DMA_CONTIG
-	---help---
-	  This module makes the ATMEL Image Sensor Interface available
-	  as a v4l2 device.
-
-config VIDEO_S5P_MIPI_CSIS
-	tristate "Samsung S5P and EXYNOS4 MIPI CSI receiver driver"
-	depends on VIDEO_V4L2 && PM_RUNTIME && PLAT_S5P
-	depends on VIDEO_V4L2_SUBDEV_API && REGULATOR
-	---help---
-	  This is a v4l2 driver for Samsung S5P/EXYNOS4 MIPI-CSI receiver.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called s5p-csis.
-
-source "drivers/media/video/s5p-tv/Kconfig"
-
-endif # V4L_PLATFORM_DRIVERS
-
-source "drivers/media/video/cmmb/Kconfig"
-
-endif # VIDEO_CAPTURE_DRIVERS
-
-menuconfig V4L_MEM2MEM_DRIVERS
-	bool "Memory-to-memory multimedia devices"
-	depends on VIDEO_V4L2
-	default n
-	---help---
-	  Say Y here to enable selecting drivers for V4L devices that
-	  use system memory for both source and destination buffers, as opposed
-	  to capture and output drivers, which use memory buffers for just
-	  one of those.
-
-if V4L_MEM2MEM_DRIVERS
-
-config VIDEO_MEM2MEM_TESTDEV
-	tristate "Virtual test device for mem2mem framework"
-	depends on VIDEO_DEV && VIDEO_V4L2
-	select VIDEOBUF2_VMALLOC
-	select V4L2_MEM2MEM_DEV
-	default n
-	---help---
-	  This is a virtual test device for the memory-to-memory driver
-	  framework.
-
-config VIDEO_SAMSUNG_S5P_G2D
-	tristate "Samsung S5P and EXYNOS4 G2D 2d graphics accelerator driver"
-	depends on VIDEO_DEV && VIDEO_V4L2 && PLAT_S5P
-	select VIDEOBUF2_DMA_CONTIG
-	select V4L2_MEM2MEM_DEV
-	default n
-	---help---
-	  This is a v4l2 driver for Samsung S5P and EXYNOS4 G2D
-	  2d graphics accelerator.
-
-config VIDEO_SAMSUNG_S5P_JPEG
-	tristate "Samsung S5P/Exynos4 JPEG codec driver (EXPERIMENTAL)"
-	depends on VIDEO_DEV && VIDEO_V4L2 && PLAT_S5P && EXPERIMENTAL
-	select VIDEOBUF2_DMA_CONTIG
-	select V4L2_MEM2MEM_DEV
-	---help---
-	  This is a v4l2 driver for Samsung S5P and EXYNOS4 JPEG codec
-
-config VIDEO_SAMSUNG_S5P_MFC
-	tristate "Samsung S5P MFC 5.1 Video Codec"
-	depends on VIDEO_DEV && VIDEO_V4L2 && PLAT_S5P
-	select VIDEOBUF2_DMA_CONTIG
+config LEDS_RT8547
+	bool "LED Support for RT8547"
 	default n
 	help
-	    MFC 5.1 driver for V4L2.
+	  This option enabled support for RT8547 LED drivers
 
-config VIDEO_MX2_EMMAPRP
-	tristate "MX2 eMMa-PrP support"
-	depends on VIDEO_DEV && VIDEO_V4L2 && SOC_IMX27
-	select VIDEOBUF2_DMA_CONTIG
-	select V4L2_MEM2MEM_DEV
+config FLED_RT5033
+	bool "LED Support for RT5033"
+	default n
 	help
-	    MX2X chips have a PrP that can be used to process buffers from
-	    memory to memory. Operations include resizing and format
-	    conversion.
+	  This option enabled support for RT5033 LED drivers
 
-endif # V4L_MEM2MEM_DRIVERS
+config LEDS_RT8547_DBG
+	bool "LED RT8547 Debug"
+	depends on LEDS_RT8547
+	default n
+	help
+	  This option enabled RT8547 LED drivers debug option
 
-menuconfig VIDEO_DISPLAY_DRIVERS
-	bool "Video display adapters"
-	depends on VIDEO_V4L2
+config LEDS_DELL_NETBOOKS
+	tristate "External LED on Dell Business Netbooks"
+	depends on LEDS_CLASS
+	depends on X86 && ACPI_WMI
+	help
+	  This adds support for the Latitude 2100 and similar
+	  notebooks that have an external LED.
+
+config LEDS_MC13783
+	tristate "LED Support for MC13783 PMIC"
+	depends on LEDS_CLASS
+	depends on MFD_MC13783
+	help
+	  This option enable support for on-chip LED drivers found
+	  on Freescale Semiconductor MC13783 PMIC.
+
+config LEDS_NS2
+	tristate "LED support for Network Space v2 GPIO LEDs"
+	depends on LEDS_CLASS
+	depends on MACH_NETSPACE_V2 || MACH_INETSPACE_V2 || \
+		   MACH_NETSPACE_MAX_V2 || MACH_D2NET_V2
 	default y
-	---help---
-	  Say Y here to enable selecting the video adapters for PXA168.
+	help
+	  This option enable support for the dual-GPIO LED found on the
+	  Network Space v2 board (and parents). This include Internet Space v2,
+	  Network Space (Max) v2 and d2 Network v2 boards.
 
-if VIDEO_DISPLAY_DRIVERS && VIDEO_V4L2
+config LEDS_NETXBIG
+	tristate "LED support for Big Network series LEDs"
+	depends on MACH_NET2BIG_V2 || MACH_NET5BIG_V2
+	depends on LEDS_CLASS
+	default y
+	help
+	  This option enable support for LEDs found on the LaCie 2Big
+	  and 5Big Network v2 boards. The LEDs are wired to a CPLD and are
+	  controlled through a GPIO extension bus.
 
-config MMP_V4L2_OVERLAY
-	tristate "Marvell MMP LCD Controller overlay support"
-	select VIDEOBUF2_DMA_CONTIG
-	depends on VIDEO_V4L2
-        ---help---
-          This is a video4linux2 driver for the Marvell MMP LCD
-          overlay controller.
+config LEDS_ASIC3
+	bool "LED support for the HTC ASIC3"
+	depends on LEDS_CLASS
+	depends on MFD_ASIC3
+	default y
+	help
+	  This option enables support for the LEDs on the HTC ASIC3. The HTC
+	  ASIC3 LED GPIOs are inputs, not outputs, thus the leds-gpio driver
+	  cannot be used. This driver supports hardware blinking with an on+off
+	  period from 62ms to 125s. Say Y to enable LEDs on the HP iPAQ hx4700.
 
-endif # VIDEO_DISPLAY_DRIVERS
+config LEDS_RENESAS_TPU
+	bool "LED support for Renesas TPU"
+	depends on LEDS_CLASS && HAVE_CLK && GENERIC_GPIO
+	help
+	  This option enables build of the LED TPU platform driver,
+	  suitable to drive any TPU channel on newer Renesas SoCs.
+	  The driver controls the GPIO pin connected to the LED via
+	  the GPIO framework and expects the LED to be connected to
+	  a pin that can be driven in both GPIO mode and using TPU
+	  pin function. The latter to support brightness control.
+	  Brightness control is supported but hardware blinking is not.
+
+config LEDS_TCA6507
+	tristate "LED Support for TCA6507 I2C chip"
+	depends on LEDS_CLASS && I2C
+	help
+	  This option enables support for LEDs connected to TC6507
+	  LED driver chips accessed via the I2C bus.
+	  Driver support brightness control and hardware-assisted blinking.
+
+config LEDS_MAX8997
+	tristate "LED support for MAX8997 PMIC"
+	depends on LEDS_CLASS && MFD_MAX8997
+	help
+	  This option enables support for on-chip LED drivers on
+	  MAXIM MAX8997 PMIC.
+
+config LEDS_OT200
+	tristate "LED support for the Bachmann OT200"
+	depends on LEDS_CLASS && HAS_IOMEM
+	help
+	  This option enables support for the LEDs on the Bachmann OT200.
+	  Say Y to enable LEDs on the Bachmann OT200.
+
+config LEDS_TRIGGERS
+	bool "LED Trigger support"
+	depends on LEDS_CLASS
+	help
+	  This option enables trigger support for the leds class.
+	  These triggers allow kernel events to drive the LEDs and can
+	  be configured via sysfs. If unsure, say Y.
+
+comment "LED Triggers"
+
+config LEDS_TRIGGER_TIMER
+	tristate "LED Timer Trigger"
+	depends on LEDS_TRIGGERS
+	help
+	  This allows LEDs to be controlled by a programmable timer
+	  via sysfs. Some LED hardware can be programmed to start
+	  blinking the LED without any further software interaction.
+	  For more details read Documentation/leds/leds-class.txt.
+
+	  If unsure, say Y.
+
+config LEDS_TRIGGER_IDE_DISK
+	bool "LED IDE Disk Trigger"
+	depends on IDE_GD_ATA
+	depends on LEDS_TRIGGERS
+	help
+	  This allows LEDs to be controlled by IDE disk activity.
+	  If unsure, say Y.
+
+config LEDS_TRIGGER_HEARTBEAT
+	tristate "LED Heartbeat Trigger"
+	depends on LEDS_TRIGGERS
+	help
+	  This allows LEDs to be controlled by a CPU load average.
+	  The flash frequency is a hyperbolic function of the 1-minute
+	  load average.
+	  If unsure, say Y.
+
+config LEDS_TRIGGER_BACKLIGHT
+	tristate "LED backlight Trigger"
+	depends on LEDS_TRIGGERS
+	help
+	  This allows LEDs to be controlled as a backlight device: they
+	  turn off and on when the display is blanked and unblanked.
+
+	  If unsure, say N.
+
+config LEDS_TRIGGER_GPIO
+	tristate "LED GPIO Trigger"
+	depends on LEDS_TRIGGERS
+	depends on GPIOLIB
+	help
+	  This allows LEDs to be controlled by gpio events. It's good
+	  when using gpios as switches and triggering the needed LEDs
+	  from there. One use case is n810's keypad LEDs that could
+	  be triggered by this trigger when user slides up to show
+	  keypad.
+
+	  If unsure, say N.
+
+config LEDS_TRIGGER_DEFAULT_ON
+	tristate "LED Default ON Trigger"
+	depends on LEDS_TRIGGERS
+	help
+	  This allows LEDs to be initialised in the ON state.
+	  If unsure, say Y.
+
+config LEDS_TRIGGER_SLEEP
+	tristate "LED Sleep Mode Trigger"
+	depends on LEDS_TRIGGERS && HAS_EARLYSUSPEND
+	help
+	  This turns LEDs on when the screen is off but the cpu still running.
+
+comment "iptables trigger is under Netfilter config (LED target)"
+	depends on LEDS_TRIGGERS
+
+endif # NEW_LEDS

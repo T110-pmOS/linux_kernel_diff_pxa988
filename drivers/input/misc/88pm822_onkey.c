@@ -197,16 +197,16 @@ static int __devinit pm822_onkey_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, info);
 
-	if (!sec_debug_level.en.kernel_fault) {
+//	if (!sec_debug_level.en.kernel_fault) {
 		/* Debug Level LOW, Forces a supply power down */
 		/* Enable long onkey1  detection */
-		regmap_update_bits(info->map, PM822_RTC_MISC4, PM822_LONG_ONKEY_MASK,
-				   PM822_LONG_ONKEY_EN1);
-	} else {
+//		regmap_update_bits(info->map, PM822_RTC_MISC4, PM822_LONG_ONKEY_MASK,
+//				   PM822_LONG_ONKEY_EN1);
+//	} else {
 		/* Enable long onkey2  detection */
 		regmap_update_bits(info->map, PM822_RTC_MISC4, PM822_LONG_ONKEY_MASK,
 				   PM822_LONG_ONKEY_EN2);
-	}
+//	}
 	/* Set 8-second interval */
 	regmap_update_bits(info->map, PM822_RTC_MISC3,
 			   PM822_LONKEY_PRESS_TIME_MASK,

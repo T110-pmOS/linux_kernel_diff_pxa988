@@ -2401,7 +2401,7 @@ config ARM_CPU_SUSPEND
 
 config KERNEL_DEBUG_SEC
 	bool
-	default y
+	default n
 endmenu
 
 source "net/Kconfig"

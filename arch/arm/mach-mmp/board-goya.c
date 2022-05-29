@@ -4763,9 +4763,9 @@ static void __init emeidkb_init(void)
 	 *  so I try to add a little code to apply to apse's code, such as mv_cam_pdata init.
 	 *  By Vincent Wan.
 	*/
-	mv_cam_data_forssg.init_clk = pxa988_cam_clk_init,
-	mv_cam_data_forssg.enable_clk = pxa988_cam_set_clk,
-	init_samsung_cam();
+	//mv_cam_data_forssg.init_clk = pxa988_cam_clk_init,
+	//mv_cam_data_forssg.enable_clk = pxa988_cam_set_clk,
+	//init_samsung_cam();
 #endif
 
 #if 0

@@ -80,4 +80,4 @@ obj-$(CONFIG_TOUCHSCREEN_BT532_TS) += bt532_ts.o
 obj-$(CONFIG_TOUCHSCREEN_BT432_TS) += bt432_ts.o
 obj-$(CONFIG_TOUCHSCREEN_MXT224S)	+= mxts.o
 obj-$(CONFIG_TOUCHSCREEN_CYPRESS_TMA46X)	+= cyttsp4_core.o	cyttsp4_i2c.o  cyttsp4_bus.o  cyttsp4_mtb.o  cyttsp4_mt_common.o cyttsp4_btn.o  cyttsp4_device_access.o cyttsp4_loader.o
-obj-$(CONFIG_TOUCHSCREEN_MELFAS_MMS144)		+= MMS144/
+# obj-$(CONFIG_TOUCHSCREEN_MELFAS_MMS144)		+= MMS144/

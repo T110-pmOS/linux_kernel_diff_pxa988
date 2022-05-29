@@ -1725,10 +1725,10 @@ static int i2c_pxa_probe(struct platform_device *dev)
 	|| defined(CONFIG_MACH_BAFFIN) || defined(CONFIG_MACH_CT01) || defined(CONFIG_MACH_CS05) || defined(CONFIG_MACH_BAFFINQ) \
 	|| defined(CONFIG_MACH_GOLDEN) ||defined(CONFIG_MACH_GOYA) || defined(CONFIG_MACH_DEGAS)
 	/* For samsung aruba, camera maybe pull down all i2c pins which leads to wrong state of AP side*/
-	if (i2c->adap.nr == 0x0) {
-		samsung_camera.i2c_pxa_reset = i2c_pxa_reset;
-		samsung_camera.i2c = i2c;
-	}
+	//if (i2c->adap.nr == 0x0) {
+	//	samsung_camera.i2c_pxa_reset = i2c_pxa_reset;
+	//	samsung_camera.i2c = i2c;
+	//}
 #endif 
 	disable_irq(i2c->irq);
 
